@@ -1,9 +1,9 @@
-#Frontend
-## Vulnérabilités trouvées
+
+## Front EndVulnérabilités trouvées
 
 ### 1. Faille XSS
 // Dans frontend/src/App.js
-'''js
+```js
 const filtered = products.filter(p => {
   try {
     return eval(`p.name.toLowerCase().includes('${searchQuery}'.toLowerCase())`);
@@ -11,20 +11,20 @@ const filtered = products.filter(p => {
     return false;
   }
 });
-'''
+```
 
 **Correction**
-'''js
+```js
 const filtered = products.filter(p =>
   p.name.toLowerCase().includes(searchQuery.toLowerCase())
 );
-'''
+```
 
 ### 2. Clé API Stockée
 // Dans frontend/src/App.js
-'''js
+```js
 const API_KEY = 'sk_live_41Hqp9K2eZvKYlo2C8xO3n4y5z6a7b8c9d0e1f2g3h4i5p';
-'''
+```
 
 **Correction**
 
@@ -34,74 +34,75 @@ Stocker la clé coté server
 ### 3. Remote Code Execution côté navigateur
 
 **Dans handleSearch() :**
-'''js
+```js
 return eval(`p.name.toLowerCase().includes('${searchQuery}'.toLowerCase())`);
-'''
+```
 
 **Correction**
-'''js
+```js
 return p.name.toLowerCase().includes(searchQuery.toLowerCase());
-'''
+```
 
 ### 4. XSS permanente
-'''js
+```js
 dangerouslySetInnerHTML={{ __html: product.name }}
 dangerouslySetInnerHTML={{ __html: review.comment }}
-'''
+```
 
 **Correction**
 Installer dompurify
-'''js
+```js
 import DOMPurify from "dompurify";
 <h3 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.name) }} />
-'''
+```
 
 ### 5. Logs sensibles dans la console
 
-'''js
+```js
 console.log('User data:', user);
 console.log('API Key:', API_KEY);
 console.log('JWT Token:', localStorage.getItem('token'));
-'''
+```
+
 **Correction**
-'''js
+```js
 if (process.env.NODE_ENV === "development") {
   console.log('User data:', user);
 }
-'''
+```
 
 
 ### 6. Stockage JWT non sécurisé dans localStorage
 
-'''js
+```js
 localStorage.setItem('token', data.token);
-'''
+```
 
 **Correction**
-'''js
+```js
 const [token, setToken] = useState(null);
-'''
+```
 
-#Backend
-## Vulnérabilités trouvées
+
+## Backend - Vulnérabilités trouvées
 
 ### 7. RCE
 
-'''js
+```js
 const searchCode = `db.products.filter(p => p.name.toLowerCase().includes('${query}'.toLowerCase()))`;
 const results = eval(searchCode);
-'''
+```
 
 **Correction**
-'''js
+```js
 const results = db.products.filter(p =>
     p.name.toLowerCase().includes(query.toLowerCase())
 );
-'''
+```
 
 ### 8. Injection SQL
 
-'''js
+```js
 const query = `username = '${username}' AND password = '${password}'`;
 
 const user = db.users.find(u => {
@@ -110,10 +111,10 @@ const user = db.users.find(u => {
     }
     return u.username === username && u.password === password;
 });
-'''
+```
 
 ***Correction***
-'''js
+```js
 const bcrypt = require('bcrypt');
 
 const hashedPassword = await bcrypt.hash(password, 10);
@@ -122,24 +123,24 @@ db.users.push({ username, password: hashedPassword, ... });
 const user = db.users.find(u => u.username === username);
 if (user && await bcrypt.compare(password, user.password)) {
 }
-'''
+```
 
 ### 9. Path Traversal
 
-'''js
+```js
 const content = fs.readFileSync(`./uploads/${filename}`, 'utf8');
-'''
+```
 
 ***Correction***
-'''js
+```js
 const path = require('path');
 const filePath = path.join(__dirname, 'uploads', path.basename(filename));
 const content = fs.readFileSync(filePath, 'utf8');
-'''
+```
 
 ### 10. Debug endpoint
 
-'''js
+```js
 res.json({
     env: process.env,
     secrets: {
@@ -150,22 +151,22 @@ res.json({
     },
     database: db
 });
-'''
+```
 
 ***Correction***
 Supprimer l'endpoint
 
 ### 11. JWT non expiré
 
-'''js
+```js
 app.use(session({
     secret: SESSION_SECRET,
     cookie: { secure: false, httpOnly: false }
 }));
-'''
+```
 
 ***Correction***
-'''js
+```js
 app.use(session({
     secret: SESSION_SECRET,
     cookie: {
@@ -177,7 +178,7 @@ app.use(session({
 }));
 
 const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-'''
+```
 
 ### 12. Mots de passes stockés en clair
 
@@ -188,38 +189,38 @@ Mettre un hash sur les mots de passes de la base de donnée
 
 ### 13. CSRF
 
-'''js
+```js
 cors({
     origin: '*',
     credentials: true
 })
-'''
+```
 
 ***Correction***
-'''js
+```js
 app.use(cors({
-    origin: ['https://tonsite.com'],
+    origin: ['https://127.0.0.1:3000'],
     credentials: true
 }));
-
-'''js
+```
+```js
 cookie: {
     httpOnly: true,
     secure: true,
     sameSite: "strict"
 }
-'''
+```
 
 ### 14. Absence de vérification sur userId
 
-'''js
+```js
 const { userId, productId, quantity, creditCard } = req.body;
-'''
+```
 
 ***Correction***
-'''js
+```js
 if (!req.session.user) return res.status(403).json({error: "Not authenticated"});
 }
-'''
+```
 
 
