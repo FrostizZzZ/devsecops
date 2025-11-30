@@ -1,5 +1,5 @@
 
-## Front EndVulnérabilités trouvées
+## Front End - Vulnérabilités trouvées
 
 ### 1. Faille XSS
 // Dans frontend/src/App.js
