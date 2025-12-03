@@ -72,9 +72,10 @@ jobs:
   # 4. SCA - Analyse des dépendances Backend
   # Détecte les vulnérabilités dans les dépendances npm du backend
   # ═══════════════════════════════════════
-    sca-backend:
+  sca-backend:
     name: 📦 SCA Backend
     runs-on: ubuntu-latest
+    run: npx audit-ci --fail-level=high
     steps:
       - uses: actions/checkout@v4
 
@@ -87,19 +88,21 @@ jobs:
         working-directory: ./backend
         run: npm install
 
-      - name: Run SCA Backend (audit-ci)
+      - name: npm audit
         working-directory: ./backend
-        run: npx audit-ci --fail-level=critical
+        run: |
+          npm audit --json > audit-backend.json
+          npm audit
 
       - uses: actions/upload-artifact@v4
         with:
           name: npm-audit-backend
           path: backend/audit-backend.json
 
-
   # ═══════════════════════════════════════
   # 5. SCA - Analyse des dépendances Frontend
   # Détecte les vulnérabilités dans les dépendances npm du frontend
+  # ═══════════════════════════════════════
   sca-frontend:
     name: 📦 SCA Frontend
     runs-on: ubuntu-latest
@@ -115,15 +118,16 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
-      - name: Run SCA Frontend (audit-ci)
+      - name: npm audit
         working-directory: ./frontend
-        run: npx audit-ci --fail-level=critical
+        run: |
+          npm audit --json > audit-frontend.json
+          npm audit
 
       - uses: actions/upload-artifact@v4
         with:
           name: npm-audit-frontend
           path: frontend/audit-frontend.json
-
 
   # ═══════════════════════════════════════
   # 6. SECRET DETECTION
