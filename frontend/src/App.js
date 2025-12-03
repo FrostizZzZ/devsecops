@@ -36,14 +36,10 @@ function App() {
 
   const handleSearch = async () => {
     try {
-      const filtered = products.filter(p => {
-        try {
-
-          return eval(`p.name.toLowerCase().includes('${searchQuery}'.toLowerCase())`);
-        } catch(e) {
-          return false;
-        }
-      });
+      const filtered = products.filter(p =>
+  p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  return p.name.toLowerCase().includes(searchQuery.toLowerCase());
+);
       setProducts(filtered);
     } catch (error) {
       console.error('Erreur recherche:', error);
@@ -68,7 +64,7 @@ function App() {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('token', data.token);
+        const [token, setToken] = useState(null);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         setView('products');
@@ -197,9 +193,9 @@ function App() {
 
   useEffect(() => {
     // Logs qui exposent des infos sensibles
-    console.log('User data:', user);
-    console.log('API Key:', API_KEY);
-    console.log('JWT Token:', localStorage.getItem('token'));
+    if (process.env.NODE_ENV === "development") {
+  console.log('User data:', user);
+}
   }, [user]);
 
   return (

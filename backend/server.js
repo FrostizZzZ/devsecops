@@ -15,9 +15,15 @@ const STRIPE_SECRET_KEY = "sk_live_51Hqp9K2eZvKYlo2C8xO3n4y5z6a7b8c9d0e1f2g3h4i5
 const ADMIN_API_KEY = "sk_live_51Hqp9K2eZvKYlo2C8xO3n4y5z6a7b8c9d0e1f2g3h4i3m";
 
 app.use(cors({
-    origin: '*',
+    origin: ['https://127.0.0.1:3000'],
     credentials: true
 }));
+
+cookie: {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict"
+}
 
 // Middleware
 app.use(bodyParser.json());
@@ -28,11 +34,13 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: false,
-        httpOnly: false,
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 jours
-    }
+        secure: process.env.NODE_ENV === 'production', 
+        httpOnly: true, 
+        sameSite: 'Strict',
+        maxAge: 24 * 60 * 60 * 1000 
 }));
+
+const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
 
 // Connexion MongoDB (in-memory pour faciliter)
 // En production, utiliser une vraie DB
@@ -79,8 +87,9 @@ app.get('/api/products/search', (req, res) => {
     const query = req.query.q;
 
     try {
-        const searchCode = `db.products.filter(p => p.name.toLowerCase().includes('${query}'.toLowerCase()))`;
-        const results = eval(searchCode);
+        const results = db.products.filter(p =>
+    p.name.toLowerCase().includes(query.toLowerCase())
+);
         res.json(results);
     } catch(e) {
         res.status(500).json({
@@ -111,14 +120,14 @@ app.post('/api/register', (req, res) => {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    const query = `username = '${username}' AND password = '${password}'`;
+    const bcrypt = require('bcrypt');
 
-    const user = db.users.find(u => {
-        if (username.includes("' OR '1'='1")) {
-            return true;
-        }
-        return u.username === username && u.password === password;
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    db.users.push({ username, password: hashedPassword, ... });
+
+    const user = db.users.find(u => u.username === username);
+    if (user && await bcrypt.compare(password, user.password)) {
+    }
     
     if (user) {
         const jwt = require('jsonwebtoken');
@@ -246,7 +255,9 @@ app.get('/api/files/:filename', (req, res) => {
     const fs = require('fs');
 
     try {
-        const content = fs.readFileSync(`./uploads/${filename}`, 'utf8');
+        const path = require('path');
+        const filePath = path.join(__dirname, 'uploads', path.basename(filename));
+        const content = fs.readFileSync(filePath, 'utf8');
         res.send(content);
     } catch(e) {
         res.status(404).json({ message: 'Fichier non trouvé' });
