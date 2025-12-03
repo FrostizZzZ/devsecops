@@ -75,6 +75,7 @@ jobs:
   sca-backend:
     name: 📦 SCA Backend
     runs-on: ubuntu-latest
+    run: npx audit-ci --fail-level=high
     steps:
       - uses: actions/checkout@v4
 
@@ -105,6 +106,7 @@ jobs:
   sca-frontend:
     name: 📦 SCA Frontend
     runs-on: ubuntu-latest
+    run: npx audit-ci --fail-level=high
     steps:
       - uses: actions/checkout@v4
 
