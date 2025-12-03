@@ -58,15 +58,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: >-
-            p/security-audit
-            p/secrets
-            p/owasp-top-ten
-            p/javascript
-            p/react
+      - name: Run Semgrep SAST
+      uses: returntocorp/semgrep-action@v2
+      with:
+        config: |
+          p/security-audit
+          p/secrets
+          p/owasp-top-ten
+          p/javascript
+          p/react
 
   # ═══════════════════════════════════════
   # 4. SCA - Analyse des dépendances Backend
