@@ -55,10 +55,12 @@ jobs:
   sast:
     name: 🔍 SAST
     runs-on: ubuntu-latest
+    image: returntocorp/semgrep:latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Semgrep
+      - name: Run Semgrep CI
+        run: semgrep ci --config p/ci
         uses: returntocorp/semgrep-action@v2
         with:
           config: >-
