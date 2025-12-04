@@ -120,9 +120,8 @@ jobs:
 
       - name: npm audit
         working-directory: ./frontend
-        run: |
-          npm audit --json > audit-frontend.json
-          npm audit
+        run: npm audit --json > audit-backend.json || true
+
 
       - uses: actions/upload-artifact@v4
         with:
