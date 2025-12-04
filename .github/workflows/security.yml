@@ -53,17 +53,20 @@ jobs:
   # Outil : Semgrep avec règles OWASP Top 10
   # ═══════════════════════════════════════
   sast:
-  name: 🔍 SAST
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    name: 🔍 SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Run Semgrep
-      uses: semgrep/semgrep-action@v1
-      with:
-        config: p/ci
-
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v2
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/javascript
+            p/react
 
   # ═══════════════════════════════════════
   # 4. SCA - Analyse des dépendances Backend
