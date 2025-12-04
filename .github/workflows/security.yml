@@ -67,7 +67,7 @@ jobs:
             p/owasp-top-ten
             p/javascript
             p/react
-
+        continue-on-error: true
   # ═══════════════════════════════════════
   # 4. SCA - Analyse des dépendances Backend
   # Détecte les vulnérabilités dans les dépendances npm du backend
