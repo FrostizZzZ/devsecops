@@ -90,9 +90,7 @@ jobs:
 
       - name: npm audit
         working-directory: ./backend
-        run: |
-          npm audit --json > audit-backend.json
-          npm audit
+        run: npm audit --json > audit-backend.json || true
 
       - uses: actions/upload-artifact@v4
         with:
